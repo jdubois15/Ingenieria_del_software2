@@ -1,0 +1,25 @@
+
+CINTA = (llega_a -> para_cinta -> levanta_a -> arranca_cinta -> CINTA
+        |llega_b -> para_cinta -> levanta_b -> arranca_cinta -> CINTA
+        |llega_c -> para_cinta -> levanta_c -> arranca_cinta -> CINTA
+        |llega_d -> para_cinta -> levanta_d -> arranca_cinta -> CINTA).
+
+BRAZO1 = (levanta_a -> deposita_prensa_a -> BRAZO1
+         |levanta_b -> deposita_taladro_b -> BRAZO1
+         |levanta_c -> deposita_prensa_c -> BRAZO1
+         |levanta_d -> deposita_taladro_d -> BRAZO1).
+
+PRENSA = (deposita_prensa_a -> prensado_a -> extrae_prensa_a -> PRENSA
+         |deposita_prensa_c -> prensado_c -> pasa_a_taladro_c -> PRENSA
+         |pasa_a_prensa_d -> prensado_d -> extrae_prensa_d -> PRENSA).
+
+TALADRO = (deposita_taladro_b -> taladrado_b -> extrae_taladro_b -> TALADRO
+          |deposita_taladro_d -> taladrado_d -> pasa_a_prensa_d -> TALADRO
+          |pasa_a_taladro_c -> taladrado_c -> extrae_taladro_c -> TALADRO).
+
+BRAZO2 = (extrae_prensa_a -> deposita_salida_a -> BRAZO2
+         |extrae_taladro_b -> deposita_salida_b -> BRAZO2
+         |extrae_taladro_c -> deposita_salida_c -> BRAZO2
+         |extrae_prensa_d -> deposita_salida_d -> BRAZO2).
+
+||CELULA = (CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO2).

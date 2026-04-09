@@ -1,0 +1,18 @@
+/* Ejercicio 10.. Un museo permite que sus visitantes entren a trav´es de la entrada este, y que abandonen
+el museo a trav´es de la salida oeste. Los arribos y las partidas de personas son controladas por puertas
+giratorias en la entrada y en la salida. Adem´as, el director del museo indica la habilitaci´on de la
+entrada y salida de personas en el horario de apertura del museo, y cuando indica el horario de cierre
+s´olo se permiten salidas del museo, pero no entradas. La habilitaci´on e inhabilitaci´on de las puertas
+giratorias las realiza un controlador. Modele, utilizando los procesos EAST, WEST, CONTROL y
+DIRECTOR, el comportamiento del museo. */
+
+
+EAST = (enter -> EAST).
+WEST = (leave -> WEST).
+DIRECTOR = (open -> close -> DIRECTOR). 
+
+CONTROL = CLOSED,
+CLOSED  = (open -> OPEN | leave -> CLOSED),
+OPEN    = (enter -> OPEN | leave -> OPEN | close -> CLOSED).
+
+||MUSEO = (EAST || WEST || DIRECTOR || CONTROL).

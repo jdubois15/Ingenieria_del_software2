@@ -1,0 +1,18 @@
+const H = 108 
+const L = 88
+range RANGO = L..H
+
+// 1. Estado inicial
+RADIO = (onoff -> ON[H]), 
+
+// 2. Estado ON
+ON[f:RANGO] = (
+	freq[f] -> ON[f]
+	|onoff -> RADIO
+	|reset -> ON[H]
+	|scan -> (
+		when( f>L ) scan -> ON[f-1]
+		| when(f == L ) scan -> ON[f]
+	)
+).
+

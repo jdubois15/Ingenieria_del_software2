@@ -1,0 +1,15 @@
+const LATA = 15 
+range RANGO = 0..35 // Aumenté el rango porque si tienes 10 y metes 20, llegas a 30.
+
+MAQUINA = MAQUINA[0],
+MAQUINA[i:RANGO] = (
+    // Si ya llegué o pasé el precio, doy el vuelto y vuelvo a 0
+    when (i >= LATA) vuelto[i - LATA] -> MAQUINA[0] 
+    |
+    // Si me falta dinero, permito meter más monedas
+    when (i < LATA) cinco  -> MAQUINA[i + 5]
+    |
+    when (i < LATA) diez   -> MAQUINA[i + 10]
+    |
+    when (i < LATA) veinte -> MAQUINA[i + 20] 
+).

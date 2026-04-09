@@ -1,0 +1,8 @@
+const N = 2
+range R = 0..N
+
+VARIABLE = VARIABLE[0],
+VARIABLE[i:R] = (
+    read[i] -> VARIABLE[i]   | // Permite leer el valor actual 'i'
+    write[v:R] -> VARIABLE[v]  // Permite escribir cualquier valor 'v' del rango R
+).

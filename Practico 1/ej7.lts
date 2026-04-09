@@ -1,0 +1,19 @@
+MAQUINA = (
+	pago_veinte -> VUELTO_CINCO
+	| pago_diez -> FALTAN_CINCO
+	| pago_5 -> FALTAN_DIEZ),
+
+FALTAN_CINCO = (
+	pago_cinco -> VUELTO_CERO
+	|pago_diez -> VUELTO_CINCO
+	|pago_veinte -> VUELTO_QUINCE),
+
+FALTAN_DIEZ = (
+	pago_cinco -> FALTAN_CINCO
+	|pago_diez -> VUELTO_CERO
+	|pago_veinte -> VUELTO_DIEZ),
+
+VUELTO_CERO = ( vuelto_cero -> MAQUINA),
+VUELTO_CINCO = ( vuelto_cinco -> MAQUINA),
+VUELTO_DIEZ = ( vuelto_diez -> MAQUINA),
+VUELTO_QUINCE = ( vuelto_quince -> MAQUINA).

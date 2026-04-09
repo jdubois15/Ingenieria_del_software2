@@ -1,0 +1,40 @@
+const N = 9
+range TANQUE = 0..N
+
+// Iniciamos en 5 como pide el enunciado
+SENSOR = SENSOR[5], 
+
+SENSOR[i:TANQUE] = (
+    // Acciones para cambiar el nivel físicamente
+    when(i < N) sube -> SENSOR[i+1] |
+    when(i > 0) baja -> SENSOR[i-1] |
+
+    // Acción de medir (la lógica que ya tenías)
+    read -> (
+        when(i < 2) bajo -> SENSOR[i] |
+        when(i > 8) alto -> SENSOR[i] |
+        when(i >= 2 && i <= 8) normal -> SENSOR[i]
+    )
+).
+
+//------------------
+
+const MEDIO = 5 
+
+range TANQUE = 0..9
+
+
+
+
+
+SENSOR = SENSOR[9],
+
+SENSOR[i:TANQUE] = (
+
+read[i] -> ( when(i<2) bajo -> SENSOR |
+
+when(i>8) alto -> SENSOR |
+
+when(i<8 && i>2) medio -> SENSOR )
+
+).

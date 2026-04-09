@@ -1,0 +1,15 @@
+CINTA = (mover -> parar -> {extraccion_prensa, extraccion_taladro} -> CINTA).
+
+BRAZO1 = (
+extraccion_prensa -> depositar_prensa -> BRAZO1
+| extraccion_taladro -> depositar_taladro -> BRAZO1).
+
+PRENSA = (depositar_prensa -> prensar -> extraccion_prensa2 -> PRENSA).
+
+TALADRO = (depositar_taladro -> taladrar -> extraccion_taladro2 -> TALADRO).
+
+BRAZO2 = (
+extraccion_prensa2 -> depositar_general -> BRAZO2
+|extraccion_taladro2 -> depositar_general -> BRAZO2 ).
+
+||SERIE = (CINTA || BRAZO1 || PRENSA || TALADRO || BRAZO2).
