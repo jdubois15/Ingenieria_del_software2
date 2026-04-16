@@ -1,0 +1,46 @@
+/*
+Jardin ornamental:
+Consideremos el problema del jardín ornamental.
+Tenemos un jardín ornamental con dos entradas (este y oeste), con sendas puertas giratorias.
+Se desea contar el número de personas que visitaron el jardín.
+*/
+
+const N = 4
+range T = 0..N
+set VarAlpha = {value.{read[T],write[T],aquire,release}}
+
+VAR      = VAR[0],
+VAR[u:T] = (read[u]   ->VAR[u]
+           |write[v:T]->VAR[v]).
+
+LOCK = (aquire->release->LOCK).
+||LOCKVAR = (LOCK || VAR).
+
+TURNSTILE = (go     -> RUN),
+RUN       = (arrive -> INCREMENT
+            |end    -> TURNSTILE),
+
+INCREMENT = (value.acquire
+			-> value.read[x:T] -> value.write[x+1]
+			-> value.release -> RUN
+			)+VarAlpha.
+
+||GARDEN = (east:TURNSTILE || west:TURNSTILE
+           || {east,west,display}::value:LOCKVAR)
+            /{go /{east,west}.go,
+              end/{east,west}.end}.
+
+//Deteccion de errores
+
+TEST = TEST[0],
+TEST[v:T] = (when (v<N){east.arrive,west.arrive}->TEST[V+1]
+			|end->CHECK[v]
+			),
+CHECK[v:T] = (display.value.read[u:T] -> 
+				( when (u==v) right -> TEST[v]
+				| when (u!=v) wrong -> ERROR)
+				)+{display.VarAlpha}.
+
+||VERIF = (GARDEN || TEST).
+
+

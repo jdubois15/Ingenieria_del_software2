@@ -1,0 +1,50 @@
+// Ejercicio 4
+//	The Dining Savages: Una tribu de salvajes disfruta de una cena comunitaria. 
+//	Cada uno se sirve de una gran olla que contiene hasta M porciones de estofado de misionero.
+//	Cuando un salvaje quiere comer se sirve una porcion de la olla al menos que esta este vacıa en cuyo caso espera hasta que esta se vuelva a llenar.
+//	Si la olla se vacıa, el cocinero de la tribu la vuelve a llenar con M porciones.
+//	Modele los salvajes, el cocinero y la olla.
+
+const N = 5 // Salvajes
+const M = 3 // Porciones
+
+
+SALVAJE = (servir -> comer -> SALVAJE).	//comer es un estado al pedo?
+
+OLLA = OLLA[M],
+OLLA[i:0..M] = 	(when (i>0) servir -> OLLA[i-1]
+				| when (i==0) llenar -> OLLA[M]).
+
+COCINERO = (cocinar -> llenar -> COCINERO). //cocinar es un estado al pedo?
+
+||CENA = (OLLA || COCINERO || salvajes[1..N]:SALVAJE)
+/{
+    // Todos los N salvajes mapean su accion 'servir' a la accion compartida 'servir' de la OLLA
+    salvajes[1..N].servir / servir
+}
+
+
+/*
+¿Cómo funciona esto?
+
+Al usar salvajes[1..N]:SALVAJE, creás 5 salvajes independientes (salvajes[1], salvajes[2], etc.).
+
+El bloque de relabeling /{ ... } hace que la acción salvajes[1].servir, salvajes[2].servir, etc., 
+se sincronicen todas con la acción servir genérica que espera la OLLA.
+
+Como COCINERO y OLLA ya comparten exactamente el mismo nombre de acción (llenar) y no le pusiste prefijo al cocinero en la composición, 
+se sincronizan automáticamente.
+*/
+
+/*
+1. ¿Están "al pedo" los estados comer y cocinar?
+¡Para nada! Son fundamentales para modelar correctamente la concurrencia.
+
+En FSP, las acciones compartidas (como servir o llenar) implican que los procesos se bloquean 
+hasta que todos los involucrados estén listos para ejecutar esa acción al mismo tiempo (rendezvous).
+
+Las acciones locales como comer o cocinar representan el tiempo en el que el proceso está haciendo 
+"su propio trabajo" de forma independiente. Si un salvaje no tuviera el estado comer, 
+inmediatamente después de servir intentaría volver a servir, monopolizando la olla. 
+El estado comer simula que el salvaje se aleja de la olla, permitiendo que otro salvaje acceda al recurso compartido.
+/*
