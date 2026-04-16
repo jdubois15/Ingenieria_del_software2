@@ -1,0 +1,38 @@
+// Ejercicio 10
+//	En la peluqueria de Figaro y don Mateo hay dos peluqueros (Figaro y don Mateo) y N sillas para que los clientes esperen sentados. 
+//	Si un peluquero no tiene cliente que atender, entonces se echa a dormir una siesta.
+//	Cuando un cliente llega a la peluqueria si algun peluquero esta durmiendo, lo despierta y se hace atender.
+//	Si ambos peluqueros estan atendiendo entonces espera si hay asientos libres donde sentarse,
+//	o se va si todos los asientos estan ocupados.
+//	Cabe destacar que en esta peluquerıa los pelados tienen prioridad (pero no pueden interrumpir un corte de pelo).
+//	Modele el sistema utilizando FSP, proveyendo el diagrama de estructura del modelo. 
+//	(Sugerencia: Trate a los clientes como jobs, no como procesos independientes).
+
+const N = 5 //cantidad de sillas
+
+PELUQUERO = (dormir -> sentarCliente -> cortar -> PELUQUERO).
+
+SILLAS = SILLAS[0][0], // Arranca la peluquería vacía
+SILLAS[p:0..N][c:0..N] = (
+
+		llegaPelado -> 
+			if (p+c == N)
+			then (seVa -> SILLAS[p][c])
+			else (tomaAsiento -> SILLAS[p+1][c])
+	
+	|	llegaClienteConPelo ->
+			if (p+c == N)
+			then (seVa -> SILLAS[p][c])
+			else (tomaAsiento -> SILLAS[p][c+1])
+
+	|	when (p>0) sentarCliente -> SILLAS[p-1][c]
+
+	|	when (p==0 && c>0) sentarCliente -> SILLAS[p][c+1]   
+).
+
+||PELUQUERIA = (SILLAS || peluqueros[1..2]:PELUQUERO)
+/{
+	peluqueros[1..2].sentarCliente / sentarCliente
+}.
+
+
