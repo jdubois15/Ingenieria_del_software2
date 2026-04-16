@@ -1,0 +1,36 @@
+// Ejercicio 9
+// La empresa nomemuevodemicasa.com se dedica a la venta de libros a traves de internet.
+// Para efectuar la venta de un libro, en respuesta a la solicitud de compra de un cliente, la empresa debe realizar dos tareas:
+// 1- comprobar la disponibilidad del libro por parte de la editorial correspondiente
+// 2- comprobar que la tarjeta de credito del cliente (las ventas se realizan solo mediante tarjeta de credito) cuenta con fondos disponibles.
+
+// En caso de no contar la editorial con ejemplares disponibles o la tarjeta del cliente con fondos,
+// la compra se rechaza; caso contrario, la misma se acepta y se efectua. 
+// Para simplificar el problema,consideremos que la empresa interactua solo con una editorial y una tarjeta de credito
+// Nerd’s Press y Plasti-Card, respectivamente.
+
+//Modele el problema descripto en FSP, proveyendo ademas de las definiciones de los procesos correspondientes, el diagrama de estructura de su modelo.
+
+
+range Bool = 0..1
+
+
+CLIENTE =	(ordenDeCompra -> 		(compraAceptada -> CLIENTE
+									|compraRechazada -> CLIENTE)
+			).
+
+EDITORIAL =	(consultaLibro -> respuestaLibro[b:Bool] -> EDITORIAL).
+
+TARJETA = 	(consultaFondos -> respuestaFondos[b:Bool] -> TARJETA).
+
+TIENDA =	(ordenDeCompra 	-> //sincroniza con CLIENTE 
+			consultaLibro 	-> respuestaLibro[rtaLibro:Bool] 		-> 	//sincroniza con EDITORIOAL
+			consultaFondos	-> respuestaFondos[rtaTarjeta:Bool] 	->	//sincroniza con TARJETA
+			if (rtaLibro == 1 && rtaTarjeta == 1)
+			then (compraAceptada -> TIENDA)
+			else (compraRechazada -> TIENDA)
+			).
+
+||SISTEMA = ( CLIENTE || EDITORIAL || TARJETA || TIENDA).
+
+

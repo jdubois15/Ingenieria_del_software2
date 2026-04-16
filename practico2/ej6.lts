@@ -1,0 +1,65 @@
+//Ejercicio 6
+//	Modele en FSP el protocolo de Reconocimiento Positivo con Retransmision: PAR (“Positive Acknowledgement with Retransmission”)
+//	Para ello modele el transmisor, el receptor y los canales de ida y de vuelta.
+//	Observe que estos canales corresponden a un medio con perdida y duplicacion.
+
+// https://famaf.aulavirtual.unc.edu.ar/pluginfile.php/68188/mod_resource/content/4/protocolos.pdf
+
+
+// 100% GEMINI
+
+range Bit = 0..1
+
+// --------------------------------------------------------
+// 1. EL EMISOR (SENDER)
+// --------------------------------------------------------
+SENDER = SENDER[0],
+SENDER[b:Bit] = (in -> SEND[b]),          // Recibe un dato (simulado por 'in') para enviar
+SEND[b:Bit]   = (send_msg[b] -> WAIT[b]), // Envía el mensaje etiquetado con el bit actual
+WAIT[b:Bit]   = (
+      rec_ack[b]   -> SENDER[1-b]         // ÉXITO: Recibe el ACK correcto, alterna el bit (1-b) y avanza
+    | rec_ack[1-b] -> WAIT[b]             // DUPLICADO VIEJO: Recibe un ACK que no esperaba, lo ignora
+    | timeout      -> SEND[b]             // TIMEOUT: Se agotó el tiempo, retransmite el mismo mensaje
+).
+
+// --------------------------------------------------------
+// 2. EL RECEPTOR (RECEIVER)
+// --------------------------------------------------------
+RECEIVER = RECEIVER[0],
+RECEIVER[b:Bit] = (
+      // Mensaje esperado: lo procesa ('out'), manda el ACK correspondiente y espera el siguiente bit
+      rec_msg[b]   -> out -> send_ack[b] -> RECEIVER[1-b] 
+      
+      // Mensaje duplicado: se perdió el ACK anterior. NO hace 'out', pero reenvía el ACK para destrabar al emisor
+    | rec_msg[1-b] -> send_ack[1-b] -> RECEIVER[b]      
+).
+
+// --------------------------------------------------------
+// 3. CANALES NO CONFIABLES (Medio defectuoso)
+// --------------------------------------------------------
+
+// Canal de ida (Mensajes)
+CHANNEL_MSG = (
+    send_msg[b:Bit] -> (
+          transmit_msg[b] -> CHANNEL_MSG 
+        | lose_msg        -> CHANNEL_MSG   // El medio pierde el mensaje
+    )
+).
+
+// Canal de vuelta (ACKs)
+CHANNEL_ACK = (
+    send_ack[b:Bit] -> (
+          transmit_ack[b] -> CHANNEL_ACK 
+        | lose_ack        -> CHANNEL_ACK   // El medio pierde el ACK
+    )
+).
+
+// --------------------------------------------------------
+// 4. SISTEMA COMPUESTO
+// --------------------------------------------------------
+||ABP = (SENDER || RECEIVER || CHANNEL_MSG || CHANNEL_ACK)
+/{
+    // El 'transmit' de los canales se convierte en el 'receive' de los procesos
+    transmit_msg[b:Bit] / rec_msg[b],
+    transmit_ack[b:Bit] / rec_ack[b]
+}.
