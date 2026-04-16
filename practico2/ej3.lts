@@ -1,0 +1,59 @@
+//EJERCICIO 3
+// Una computadora central conectada a terminales remotas a traves de enlaces de comunicacion se utiliza para realizar reservas de asientos en un teatro.
+// Los empleados del teatro que realizan las reservas pueden mostrar el estado actual de reservas en las pantallas de las terminales. 
+// Para poder reservar un asiento, el cliente elije el numero, y un empleado accede a traves de la terminal para saber si el mismo esta reservado o no. 
+// Si no lo esta, realiza la reserva correspondiente. 
+// Construya un modelo FSP para este problema, asegurando que no puede reservarse m´as de una vez el mismo asiento en el teatro.
+
+const False = 0
+const True  = 1
+range Bool  = False..True
+
+const S = 3
+const T = 2
+range Seats = 1..S        
+range Terms = 1..T        
+
+// ----------------------
+// Asiento individual
+// ----------------------
+
+SEAT = SEAT[False],
+SEAT[reserved:Bool] = (
+      when (!reserved) reserve -> SEAT[True]
+    | query[reserved]          -> SEAT[reserved]
+    | when (reserved) reserve  -> ERROR
+).
+
+// ----------------------
+// Conjunto de asientos
+// ----------------------
+
+||SEATS = (seat[Seats]:SEAT).
+
+// ----------------------
+// Lock global
+// ----------------------
+
+LOCK = (acquire -> release -> LOCK).
+
+// ----------------------
+// Terminal
+// ----------------------
+TERMINAL = (
+    choose[s:Seats] ->
+    acquire ->
+    seat[s].query[reserved:Bool] ->
+        if (!reserved)
+        then (seat[s].reserve -> release -> TERMINAL)
+        else (release -> TERMINAL)
+).
+
+// ----------------------
+// Sistema completo
+// ----------------------
+||THEATRE = (
+      terminal[Terms]:TERMINAL
+    || terminal[Terms]::LOCK
+    || terminal[Terms]::SEATS
+).

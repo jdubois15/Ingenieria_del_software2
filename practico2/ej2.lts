@@ -1,0 +1,58 @@
+// Considere el problema de lectores y escritores que desean acceder a un recurso comun (por ej. una variable) 
+// donde los lectores solo pueden leer de ese recurso mientras los escritores pueden leer y escribir.
+// Ademas de las consideraciones usuales del problema de lectores-escritores, 
+// por una restriccion de la administracion del recurso, solo se permite que K procesos lo esten accediendo simultaneamente.
+// Suponga que en el sistema hay N lectores y M escritores (con N y M mayores a K). 
+// Modele el problema descripto en FSP, proveyendo ademas de las definiciones de los procesos correspondientes, el diagrama de estructura de su modelo.
+
+const N = 3 //lectores
+const M = 2 //escritores
+const K = 1 //maximo acceso simultaneo
+
+range V = 0..K
+range R = 0..K
+range W = 0..1
+
+// recurso compartido
+VAR = VAR[0],
+VAR[x:V] = (
+      read[x]      -> VAR[x]
+    | write[y:V]   -> VAR[y]
+).
+
+// proceso lector
+READER = (acquire -> read[v:V] -> release -> READER).
+
+// proceso escritor
+WRITER = (acquire -> 	(read[v:V]  -> release -> WRITER
+        				| write[v:V] -> release -> WRITER)).
+
+// Invariante: 0 <= acceso al recurso <= K
+
+// CONTROL[r][w]
+// r = cantidad de lectores accediendo
+// w = 0/1 indica si hay un escritor accediendo
+CONTROL = CONT[0][0],
+CONT[r:R][w:W] = (
+      when (w==0 && r<K)  r_acquire -> CONT[r+1][0]
+    | when (w==0 && r>0)  r_release -> CONT[r-1][0]
+    | when (w==0 && r==0) w_acquire -> CONT[0][1]
+    | when (w==1)         w_release -> CONT[0][0]			//Si hay un lector escribiendo no puede haber nada mas
+).
+
+||SYSTEM = (
+      readers[1..N]:READER
+    || writers[1..M]:WRITER
+    || VAR
+    || CONTROL
+)
+/{
+    r_acquire / readers[1..N].acquire,
+    r_release / readers[1..N].release,
+    w_acquire / writers[1..M].acquire,
+    w_release / writers[1..M].release,
+
+    read[v:V]  / {readers[1..N].read[v], writers[1..M].read[v]},
+    write[v:V] / writers[1..M].write[v]
+}.
+

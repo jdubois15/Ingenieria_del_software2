@@ -1,0 +1,29 @@
+const N = 2 //Lectores
+const M = 2 //Escritores
+const K = 2 //Recursos
+
+RESOURCE(N=K) = SEMAPHORE[N],
+SEMAPHORE[v:0..K] = (up -> SEMAPHORE[v+1] //Se libera un recurso
+                    |when(v>0) down -> SEMAPHORE[v-1] //Se agarra un recurso
+                    |when(v==K) acquire -> release -> SEMAPHORE[N] //Si todos los recursos libres ==> Puedo Escribir
+                    ),
+SEMAPHORE[K+1] = ERROR.
+
+//Los Lectores solo pueden Leer
+READER = (down -> read -> up -> READER).
+
+//Los Escritores pueden Leer y Escribir
+WRITER = (down -> read -> up -> WRITER //Leer
+         |acquire -> write -> release -> WRITER //Escribir
+         ).
+
+//Biblioteca
+||LIBRARY = (RESOURCE || reader[1..N]:READER || writer[N+1..N+M]:WRITER)
+/{
+    reader[1..N].down/down,
+    reader[1..N].up/up,
+    writer[N+1..N+M].down/down,
+    writer[N+1..N+M].up/up,
+    writer[N+1..N+M].acquire/acquire,
+    writer[N+1..N+M].release/release
+}.
