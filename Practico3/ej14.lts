@@ -1,0 +1,65 @@
+//	Dos vecinos conflictivos tiene separado sus terrenos por un campito con moras.
+//	Ellos acordaron que se iban a permitir entrar al campito para recoger moras,
+//	pero bajo la condicion de que a lo sumo uno de ellos esta a la vez en el campito.
+
+// 	Luego de varias negociaciones llegaron al acuerdo del siguiente protocolo.
+//	Cada vez que uno de los vecinos desea entrar al campito, iza su propia bandera.
+//	Si este vecino ve que la bandera del otro ya estaba izada, arria la bandera propia e intenta nuevamente.
+//	Si, en cambio, la bandera del otro vecino no esta izada, ingresa al campito y recoge las moras que desea.
+//	Una vez que haya culminado sale del campito y arria su bandera.
+
+//	Modele este algoritmo para dos vecinos, n1 y n2.
+//	Especifique la propiedad de seguridad requeria para el campito
+//	y verifique que asegure efectivamente el acceso en exclusion mutua de los vecinos.
+
+//	Especifique las propiedades de progreso requeridas para que ambos vecinos puedan recoger moras
+//	provisto que se encuentran bajo una estrategia de scheduling equitativa.
+
+//	¿Existe alguna circunstancia adversa en la cual los vecinos no puedan progresar? 
+// 	¿Que ocurrre si alguno de los vecinos es egoista?
+
+const N = 2 //VECINOS
+
+//implementacion de bandera del libro
+const True = 1
+const False = 0
+range Bool = False..True
+
+set BoolActions = {setTrue,setFalse,[False],[True]}
+
+BOOLVAR = VAL[False],
+VAL[v:Bool] =	( setTrue -> VAL[True]
+ 				| setFalse -> VAL[False]
+ 				| [v] -> VAL[v]
+ 				).
+
+||FLAGS = (flag1:BOOLVAR||flag2:BOOLVAR).
+
+NEIGHBOR = (flag.setTrue -> CHECK), //subo mi bandera y hago el check
+CHECK = (
+    // Si veo que la otra bandera está arriba, bajo la mía
+    otherFlag[True]  -> flag.setFalse -> NEIGHBOR
+    
+    // Si veo que la otra bandera está abajo, entro al campito
+  | otherFlag[False] -> enter -> leave -> flag.setFalse -> NEIGHBOR
+).
+
+||FIELD = (n1:NEIGHBOR || n2:NEIGHBOR || n1.flag:BOOLVAR || n2.flag:BOOLVAR)
+          /{ n2.flag / n1.otherFlag,
+             n1.flag / n2.otherFlag }.
+
+/*
+
+// --- Propiedad de seguridad ---
+property MUTEX = (n1.enter -> n1.leave -> MUTEX 
+                | n2.enter -> n2.leave -> MUTEX).
+
+// Composición del sistema completo evaluando la seguridad
+||SAFE_FIELD = (FIELD || MUTEX).
+
+// --- Propiedad de progreso ---
+progress PICK_N1 = {n1.enter}
+progress PICK_N2 = {n2.enter}
+
+*/
+

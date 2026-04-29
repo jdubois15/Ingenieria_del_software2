@@ -1,0 +1,64 @@
+//ej16
+
+const False = 0
+const True  = 1
+range Bool  = False..True
+
+// Modelo genérico para las banderas
+BOOLVAR = VAL[False],
+VAL[v:Bool] = ( setTrue  -> VAL[True]
+              | setFalse -> VAL[False]
+              | [v]      -> VAL[v]
+              ).
+
+// Modelo genérico para el indicador de turno (valores 1 o 2)
+range Card = 1..2
+CARDVAR = VAL[1],
+VAL[i:Card] = ( set1 -> VAL[1]
+              | set2 -> VAL[2]
+              | [i]  -> VAL[i]
+              ).
+
+NEIGHBOR = (flag.setTrue -> turn.setOther -> CHECK),
+CHECK = (
+    // Si la bandera del otro está baja, rompo el while y entro
+    otherFlag[False] -> enter -> leave -> flag.setFalse -> NEIGHBOR
+    
+    // Si la bandera del otro está alta, debo revisar de quién es el turno
+  | otherFlag[True]  -> CHECK_TURN
+),
+CHECK_TURN = (
+    // Si es el turno del otro, la condición del while es verdadera, vuelvo a chequear
+    turn.other -> CHECK
+    
+    // Si es MI turno, la condición es falsa, rompo el while y entro
+  | turn.mine  -> enter -> leave -> flag.setFalse -> NEIGHBOR
+).
+
+||FIELD = (n1:NEIGHBOR || n2:NEIGHBOR 
+        || n1.flag:BOOLVAR || n2.flag:BOOLVAR || turn:CARDVAR)
+        /{ 
+           // Lectura cruzada de banderas
+           n1.otherFlag / n2.flag,
+           n2.otherFlag / n1.flag,
+
+           // Vecino 1 interactúa con el turno
+           n1.turn.setOther / turn.set2, // n1 cede el turno a 2
+           n1.turn.other    / turn[2],   // n1 lee que es turno de 2
+           n1.turn.mine     / turn[1],   // n1 lee que es turno de 1
+
+           // Vecino 2 interactúa con el turno
+           n2.turn.setOther / turn.set1, // n2 cede el turno a 1
+           n2.turn.other    / turn[1],   // n2 lee que es turno de 1
+           n2.turn.mine     / turn[2]    // n2 lee que es turno de 2
+        }.
+
+// Seguridad: Exclusión Mutua
+property MUTEX = (n1.enter -> n1.leave -> MUTEX 
+                | n2.enter -> n2.leave -> MUTEX).
+
+||SAFE_FIELD = (FIELD || MUTEX).
+
+// Progreso: Ambos logran recoger moras
+progress PICK_N1 = {n1.enter}
+progress PICK_N2 = {n2.enter}

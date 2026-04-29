@@ -1,0 +1,14 @@
+//ej16
+
+// Modelo del laberinto parametrizado por la posición inicial
+MAZE(START=8) = ROOM[START],
+
+ROOM[0] = (north -> STOP | east -> ROOM[1]),
+ROOM[1] = (west -> ROOM[0] | east -> ROOM[2] | south -> ROOM[4]),
+ROOM[2] = (west -> ROOM[1] | south -> ROOM[5]),
+ROOM[3] = (east -> ROOM[4] | south -> ROOM[6]),
+ROOM[4] = (north -> ROOM[1] | west -> ROOM[3]),
+ROOM[5] = (north -> ROOM[2] | south -> ROOM[8]),
+ROOM[6] = (north -> ROOM[3]),
+ROOM[7] = (east -> ROOM[8]),
+ROOM[8] = (north -> ROOM[5] | west -> ROOM[7]).
